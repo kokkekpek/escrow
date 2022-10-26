@@ -1,0 +1,181 @@
+PROGRAM{
+  DECLPROC send_grams
+  DECLPROC load_root
+  DECLPROC load_guarantors
+  DECLPROC save_root
+  DECLPROC complete
+  DECLPROC recv_internal
+  71178 DECLMETHOD info
+  send_grams PROCINLINE:<{
+    0 PUSHINT
+    24 PUSHINT
+    NEWC
+    6 STU
+    s0 s4 XCHG2
+    STSLICER
+    ROT
+    STGRAMS
+    s1 s2 XCHG
+    107 STU
+    ENDC
+    SWAP
+    SENDRAWMSG
+  }>
+  load_root PROCINLINE:<{
+    c4 PUSH
+    CTOS
+    LDREF
+    1 LDU
+    256 LDU
+    128 LDU
+    LDMSGADDR
+    LDMSGADDR
+    DROP
+  }>
+  load_guarantors PROCINLINE:<{
+    CTOS
+    LDMSGADDR
+    64 LDU
+    LDMSGADDR
+    64 LDU
+    128 LDU
+    DROP
+  }>
+  save_root PROCINLINE:<{
+    s0 s5 XCHG
+    NEWC
+    STREF
+    s1 s4 XCHG
+    1 STU
+    s1 s2 XCHG
+    256 STU
+    128 STU
+    SWAP
+    STSLICER
+    SWAP
+    STSLICER
+    ENDC
+    c4 POP
+  }>
+  complete PROCINLINE:<{
+    SUB
+    1 PUSHINT
+    send_grams INLINECALLDICT
+    0 PUSHINT
+    160 PUSHINT
+    send_grams INLINECALLDICT
+  }>
+  recv_internal PROC:<{
+    SAMEALTSAVE
+    s2 POP
+    CTOS
+    4 LDU
+    SWAP
+    1 PUSHINT
+    AND
+    IFJMP:<{
+      2DROP
+    }>
+    SWAP
+    32 LDU
+    DROP
+    DUP
+    0 EQINT
+    IFJMP:<{
+      2DROP
+    }>
+    SWAP
+    LDMSGADDR
+    DROP
+    load_root INLINECALLDICT
+    s5 PUSH
+    load_guarantors INLINECALLDICT
+    s0 s9 XCHG
+    0 EQINT
+    IFJMP:<{
+      4 BLKDROP
+      s7 POP
+      OVER
+      0 GTINT
+      101 THROWIFNOT
+      s1 s3 PUXC
+      GREATER
+      102 THROWIFNOT
+      DUP
+      0 PUSHINT
+      RAWRESERVE
+      s3 s4 XCHG
+      1 PUSHINT
+      s0 s4 XCHG
+      s1 s3 s6 XCHG3
+      save_root INLINECALLDICT
+      0 PUSHINT
+      7 PUSHPOW2
+      send_grams INLINECALLDICT
+    }>
+    s7 POP
+    s8 POP
+    s8 PUSH
+    NOW
+    s0 s3 XCHG
+    SDEQ
+    s2 s1 PUSH2
+    LESS
+    AND
+    s9 s8 PUXC
+    SDEQ
+    s2 s1 PUSH2
+    GEQ
+    AND
+    s2 s6 PUSH2
+    LESS
+    AND
+    s1 s8 XCHG
+    OR
+    s8 s3 PUSH2
+    SDEQ
+    s2 s8 PUXC
+    GEQ
+    s1 s8 XCHG
+    AND
+    s0 s5 XCHG
+    GEQ
+    s1 s4 XCHG
+    AND
+    s1 s5 XCHG
+    OR
+    IF:<{
+      s5 PUSH
+      2 EQINT
+      IFJMP:<{
+        NIP
+        s4 POP
+        s1 s3 s0 XCHG3
+        complete INLINECALLDICT
+        RETALT
+      }>
+      s3 POP
+      s0 s4 XCHG
+      3 EQINT
+      IFJMP:<{
+        s2 s3 XCHG
+        complete INLINECALLDICT
+        RETALT
+      }>
+      4 BLKDROP
+      103 THROW
+    }>ELSE<{
+      6 BLKDROP
+    }>
+    104 THROW
+  }>
+  info PROC:<{
+    load_root INLINECALLDICT
+    s0 s5 XCHG
+    load_guarantors INLINECALLDICT
+    s8 s9 XCHG
+    s7 s8 XCHG
+    s6 s7 XCHG
+    s5 s6 XCHG
+  }>
+}END>c

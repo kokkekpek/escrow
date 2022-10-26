@@ -1,0 +1,160 @@
+#include "utils/equal_slices.fc";
+#include "utils/message_flag.fc";
+#include "utils/message_mode.fc";
+#include "utils/send_grams.fc";
+
+
+;;;;;;;;;;;;;;;;;
+;;  CONSTANTS  ;;
+;;;;;;;;;;;;;;;;;
+const operation::accept = 2;
+const operation::reject = 3;
+
+const error::value_is_null = 101;
+const error::royalty_is_too_big = 102;
+const error::unknown_operation = 103;
+const error::invalid_sender = 104;
+
+
+;;;;;;;;;;;;;;;
+;;  STORAGE  ;;
+;;;;;;;;;;;;;;;
+{-
+Guarantors
+  MsgAddressInt guarantor
+  uint64 deadline
+  MsgAddressInt guarantor_fallback
+  uint64 deadline_fallback
+  uint128 royalty
+
+storage
+  bool initialized
+  uint256 nonce
+  uint128 value
+  MsgAddressInt seller
+  MsgAddressInt buyer
+  ^Guarantors guarantors
+-}
+
+(cell, int, int, int, slice, slice) load_root() inline {
+    var data = get_data().begin_parse();
+    return (
+        data~load_ref(), ;; guarantors
+        data~load_uint(1), ;; initialized
+        data~load_uint(256), ;; nonce
+        data~load_uint(128), ;; value
+        data~load_msg_addr(), ;; seller
+        data~load_msg_addr() ;; buyer
+    );
+}
+
+(slice, int, slice, int, int) load_guarantors(cell guarantors) inline {
+    var data = guarantors.begin_parse();
+    return (
+        data~load_msg_addr(), ;; guarantor
+        data~load_uint(64), ;; deadline
+        data~load_msg_addr(), ;; guarantor_fallback
+        data~load_uint(64), ;; deadline_fallback
+        data~load_uint(128) ;; royalty
+    );
+}
+
+() save_root(cell guarantors, int initialized, int nonce, int value, slice seller, slice buyer) impure inline {
+    set_data(
+        begin_cell()
+        .store_ref(guarantors)
+        .store_uint(initialized, 1)
+        .store_uint(nonce, 256)
+        .store_uint(value, 128)
+        .store_slice(seller)
+        .store_slice(buyer)
+        .end_cell()
+    );
+}
+
+
+;;;;;;;;;;;;;;;;;
+;;  FUNCTIONS  ;;
+;;;;;;;;;;;;;;;;;
+() complete(slice sender, slice target, int value, int royalty) impure inline {
+    send_grams(target, value - royalty, message_mode::sender_pay_fee);
+    send_grams(sender, 0, message_mode::all_not_reserved + message_mode::destroy_if_zero);
+}
+
+
+;;;;;;;;;;;;;;;;
+;;  MESSAGES  ;;
+;;;;;;;;;;;;;;;;
+() recv_internal(int msg_value, cell in_msg, slice body) impure {
+    slice message_slice = in_msg.begin_parse();
+
+    ;; Read bounced message flags and do nothing if bounced message flag is true
+    if (message_slice~load_uint(4) & message_flag::bounced) {
+        return ();
+    }
+
+    ;; Read operation from message
+    int op = body~load_uint(32);
+
+    ;; Do nothing if operation is regular transfer
+    if (op == 0) {
+        return();
+    }
+
+    slice sender = message_slice~load_msg_addr();
+    var (guarantors, initialized, nonce, value, seller, buyer) = load_root();
+    var (guarantor, deadline, guarantor_fallback, deadline_fallback, royalty) = load_guarantors(guarantors);
+
+    ;; Initialize contract if contract is not initialized
+    if (initialized == 0) {
+        throw_unless(error::value_is_null, value > 0);
+        throw_unless(error::royalty_is_too_big, value > royalty);
+
+        ;; Reserve value on ocntract
+        ;; The transaction will fail at action state if there is not enough gas
+        ;; Set initialized = 1 in storage root cell
+        ;; Send back all not reserved gas to sender
+        raw_reserve(value, 0);
+        save_root(guarantors, 1, nonce, value, seller, buyer);
+        send_grams(sender, 0, message_mode::all_not_reserved);
+        return ();
+    }
+
+    ;; Execute operations
+    int now = now();
+    if (
+        ;; `guarantor` can execute operation before deadline
+        ;; `guarantor_fallback` can execute operation after `deadline` and before `deadline_fallback`
+        ;; `seller` can execute operation after `deadline` and `deadline_fallback`. `deadline_fallback` can be zero
+        (equal_slices(sender, guarantor) & (now < deadline)) |
+        (equal_slices(sender, guarantor_fallback) & (now >= deadline) & (now < deadline_fallback)) |
+        (equal_slices(sender, seller) & (now >= deadline) & (now >= deadline_fallback))
+    ) {
+        if (op == operation::accept) { complete(sender, seller, value, royalty); return (); }
+        if (op == operation::reject) { complete(sender, buyer, value, royalty); return (); }
+        throw(error::unknown_operation);
+    }
+
+    throw(error::invalid_sender);
+}
+
+
+;;;;;;;;;;;;;;;
+;;  GETTERS  ;;
+;;;;;;;;;;;;;;;
+(int, int, int, slice, slice, slice, int, slice, int, int) info() method_id {
+    var (guarantors, initialized, nonce, value, seller, buyer) = load_root();
+    var (guarantor, deadline, guarantor_fallback, deadline_fallback, royalty) = load_guarantors(guarantors);
+    return (
+        initialized,
+        nonce,
+        value,
+        seller,
+        buyer,
+        guarantor,
+        deadline,
+        guarantor_fallback,
+        deadline_fallback,
+        royalty
+    );
+}

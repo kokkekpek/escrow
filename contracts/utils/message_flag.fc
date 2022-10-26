@@ -1,0 +1,6 @@
+;;;;;;;;;;;;;;;;;
+;;  CONSTANTS  ;;
+;;;;;;;;;;;;;;;;;
+const message_flag::bounced = 1;
+const message_flag::bounce = 2;
+const message_flag::ihr_disabled = 3;

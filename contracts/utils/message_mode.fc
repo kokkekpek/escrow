@@ -1,0 +1,9 @@
+;;;;;;;;;;;;;;;;;
+;;  CONSTANTS  ;;
+;;;;;;;;;;;;;;;;;
+const message_mode::ordinary = 0;
+const message_mode::sender_pay_fee = 1;
+const message_mode::ignore_errors = 2;
+const message_mode::destroy_if_zero = 32;
+const message_mode::remaining_gas = 64;
+const message_mode::all_not_reserved = 128;
