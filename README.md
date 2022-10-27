@@ -7,17 +7,17 @@ yarn install && yarn copy
 Check and `config/config.ts`. It used for `wallet`, `compile` and `address` scripts
 
 ## Commands
-* Generate new 24 words mnemonic and output
+* Generate new 24 words mnemonic and output. Use it for `config`
   ```shell
   yarn mnemonic
   ```
   
-* View contract address without deploying
+* View contract address with state init from `config`
     ```shell
   yarn address
   ```
   
-* View deploy wallet address and balance
+* View **deployment wallet** address and balance with mnemonic from `config`
   ```shell
   yarn wallet
   ```
