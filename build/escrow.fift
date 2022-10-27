@@ -88,8 +88,7 @@ PROGRAM{
     s5 PUSH
     load_guarantors INLINECALLDICT
     s0 s9 XCHG
-    0 EQINT
-    IFJMP:<{
+    IFNOTJMP:<{
       4 BLKDROP
       s7 POP
       OVER

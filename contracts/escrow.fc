@@ -102,7 +102,7 @@ storage
     var (guarantor, deadline, guarantor_fallback, deadline_fallback, royalty) = load_guarantors(guarantors);
 
     ;; Initialize contract if contract is not initialized
-    if (initialized == 0) {
+    ifnot (initialized) {
         throw_unless(error::value_is_null, value > 0);
         throw_unless(error::royalty_is_too_big, value > royalty);
 
@@ -113,7 +113,7 @@ storage
         raw_reserve(value, 0);
         save_root(guarantors, 1, nonce, value, seller, buyer);
         send_grams(sender, 0, message_mode::all_not_reserved);
-        return();
+        return ();
     }
 
     ;; Execute operations
