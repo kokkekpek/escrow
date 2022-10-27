@@ -7,6 +7,8 @@
 ;;;;;;;;;;;;;;;;;
 ;;  CONSTANTS  ;;
 ;;;;;;;;;;;;;;;;;
+;; 0 operation for regular transfer
+;; 1 operation for initialization
 const operation::accept = 2;
 const operation::reject = 3;
 
