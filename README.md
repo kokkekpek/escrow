@@ -55,6 +55,15 @@ Check and `config/config.ts`. It used for `wallet`, `compile` and `address` scri
 5. If the **Guarantor** doesn't call methods before `deadline` same do **Fallback guarantor**
 6. If **Fallback guarantor** doesn't call methods before `deadline_fallback` same do **Seller**
 
+## Visualization
+![scheme](docs/scheme.jpg)
+
+1. **Buyer** deploy **Escrow**
+2. **Guarantor** `accept()`
+3. **Guarantor** `reject()`
+4. **Sender** `accept()` after all deadlines
+5. **Sender** `reject()` after all deadlines
+
 ## Notes about external vs internal messages
 Only internal messages are used to access the contract.
 External messages should only be used for the user's personal wallets.
