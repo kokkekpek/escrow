@@ -74,17 +74,13 @@ PROGRAM{
     SWAP
     1 PUSHINT
     AND
-    IFJMP:<{
-      2DROP
-    }>
+    0 THROWIF
     SWAP
     32 LDU
     DROP
     DUP
     0 EQINT
-    IFJMP:<{
-      2DROP
-    }>
+    0 THROWIF
     SWAP
     LDMSGADDR
     DROP

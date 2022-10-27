@@ -89,17 +89,13 @@ storage
     slice message_slice = in_msg.begin_parse();
 
     ;; Read bounced message flags and do nothing if bounced message flag is true
-    if (message_slice~load_uint(4) & message_flag::bounced) {
-        return ();
-    }
+    throw_if(0, message_slice~load_uint(4) & message_flag::bounced);
 
     ;; Read operation from message
     int op = body~load_uint(32);
 
     ;; Do nothing if operation is regular transfer
-    if (op == 0) {
-        return();
-    }
+    throw_if(0, op == 0);
 
     slice sender = message_slice~load_msg_addr();
     var (guarantors, initialized, nonce, value, seller, buyer) = load_root();
@@ -117,7 +113,7 @@ storage
         raw_reserve(value, 0);
         save_root(guarantors, 1, nonce, value, seller, buyer);
         send_grams(sender, 0, message_mode::all_not_reserved);
-        return ();
+        return();
     }
 
     ;; Execute operations
