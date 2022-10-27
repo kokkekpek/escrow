@@ -42,7 +42,7 @@ storage
         data~load_ref(), ;; guarantors
         data~load_uint(1), ;; initialized
         data~load_uint(256), ;; nonce
-        data~load_uint(128), ;; value
+        data~load_coins(), ;; value
         data~load_msg_addr(), ;; seller
         data~load_msg_addr() ;; buyer
     );
@@ -55,7 +55,7 @@ storage
         data~load_uint(64), ;; deadline
         data~load_msg_addr(), ;; guarantor_fallback
         data~load_uint(64), ;; deadline_fallback
-        data~load_uint(128) ;; royalty
+        data~load_coins() ;; royalty
     );
 }
 
@@ -65,7 +65,7 @@ storage
         .store_ref(guarantors)
         .store_uint(initialized, 1)
         .store_uint(nonce, 256)
-        .store_uint(value, 128)
+        .store_coins(value)
         .store_slice(seller)
         .store_slice(buyer)
         .end_cell()

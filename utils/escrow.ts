@@ -32,7 +32,6 @@ export type InitialDataConfig = {
     value: BN |number,
     seller: Address,
     buyer: Address,
-
 }
 
 /**
@@ -46,13 +45,13 @@ export function initialData(config: InitialDataConfig): Cell {
         .storeUint(config.guarantors.deadline, 64)
         .storeAddress(config.guarantors.guarantorFallback)
         .storeUint(config.guarantors.deadlineFallback, 64)
-        .storeUint(config.guarantors.royalty, 128)
+        .storeCoins(config.guarantors.royalty)
         .endCell()
     return beginCell()
         .storeRef(guarantors)
         .storeUint(config.initialized, 1)
         .storeUint(config.nonce, 256)
-        .storeUint(config.value, 128)
+        .storeCoins(config.value)
         .storeAddress(config.seller)
         .storeAddress(config.buyer)
         .endCell()

@@ -8,7 +8,7 @@ PROGRAM{
   71178 DECLMETHOD info
   send_grams PROCINLINE:<{
     0 PUSHINT
-    24 PUSHINT
+    16 PUSHINT
     NEWC
     6 STU
     s0 s4 XCHG2
@@ -27,7 +27,7 @@ PROGRAM{
     LDREF
     1 LDU
     256 LDU
-    128 LDU
+    LDGRAMS
     LDMSGADDR
     LDMSGADDR
     DROP
@@ -38,7 +38,7 @@ PROGRAM{
     64 LDU
     LDMSGADDR
     64 LDU
-    128 LDU
+    LDGRAMS
     DROP
   }>
   save_root PROCINLINE:<{
@@ -49,7 +49,8 @@ PROGRAM{
     1 STU
     s1 s2 XCHG
     256 STU
-    128 STU
+    SWAP
+    STGRAMS
     SWAP
     STSLICER
     SWAP

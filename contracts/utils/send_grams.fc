@@ -3,10 +3,13 @@
 ;;;;;;;;;;;;;;;;;
 () send_grams(slice address, int amount, int mode) impure inline {
     cell msg = begin_cell()
-        .store_uint(0x18, 6) ;; bounce
+        ;; int_msg_info$0  ihr_disabled:Bool  bounce:Bool  bounced:Bool  src:MsgAddress
+        ;; 0               1                  0            0             00
+        ;; 010000 -> hex -> 0x10
+        .store_uint(0x10, 6) ;; bounce
         .store_slice(address) ;; 267 bit address
-        .store_grams(amount) ;; 128 bit amout
-        .store_uint(0, 107) ;; 106 zeroes +  0 as an indicator that there is no cell with the data
+        .store_grams(amount)
+        .store_uint(0, 107) ;; 106 zeroes + 0 as an indicator that there is no ref
         .end_cell();
     send_raw_message(msg, mode);
 }
