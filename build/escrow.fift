@@ -112,30 +112,33 @@ PROGRAM{
     }>
     s7 POP
     s8 POP
-    s8 PUSH
+    s8 s1 PUXC
+    SDEQ
     NOW
-    s0 s3 XCHG
-    SDEQ
-    s2 s1 PUSH2
+    s2 PUSH
     LESS
     AND
-    s9 s8 PUXC
+    s8 s7 PUXC
     SDEQ
-    s2 s1 PUSH2
+    NOW
+    s2 PUSH
     GEQ
     AND
-    s2 s6 PUSH2
+    NOW
+    s6 PUSH
     LESS
     AND
-    s1 s8 XCHG
+    s1 s7 XCHG
     OR
-    s8 s3 PUSH2
+    s7 s2 PUSH2
     SDEQ
-    s2 s8 PUXC
+    NOW
+    s0 s8 XCHG2
     GEQ
-    s1 s8 XCHG
+    s1 s7 XCHG
     AND
-    s0 s5 XCHG
+    NOW
+    s0 s5 XCHG2
     GEQ
     s1 s4 XCHG
     AND

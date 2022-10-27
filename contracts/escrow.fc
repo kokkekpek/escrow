@@ -117,14 +117,13 @@ storage
     }
 
     ;; Execute operations
-    int now = now();
     if (
         ;; `guarantor` can execute operation before deadline
         ;; `guarantor_fallback` can execute operation after `deadline` and before `deadline_fallback`
         ;; `seller` can execute operation after `deadline` and `deadline_fallback`. `deadline_fallback` can be zero
-        (equal_slices(sender, guarantor) & (now < deadline)) |
-        (equal_slices(sender, guarantor_fallback) & (now >= deadline) & (now < deadline_fallback)) |
-        (equal_slices(sender, seller) & (now >= deadline) & (now >= deadline_fallback))
+        (equal_slices(sender, guarantor) & (now() < deadline)) |
+        (equal_slices(sender, guarantor_fallback) & (now() >= deadline) & (now() < deadline_fallback)) |
+        (equal_slices(sender, seller) & (now() >= deadline) & (now() >= deadline_fallback))
     ) {
         if (op == operation::accept) { complete(sender, seller, value, royalty); return (); }
         if (op == operation::reject) { complete(sender, buyer, value, royalty); return (); }
